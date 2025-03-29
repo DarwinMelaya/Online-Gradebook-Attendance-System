@@ -7,6 +7,7 @@ import {
 import Login from "./pages/auth/Login";
 import Dashboard from "./pages/admin/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Home from "./pages/Home";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
 
         {/* Public route */}
         <Route path="/login" element={<Login />} />
+        <Route path="/" element={<Home />} />
 
         {/* Protected route */}
         <Route
