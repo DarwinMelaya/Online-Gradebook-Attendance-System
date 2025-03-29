@@ -1,12 +1,23 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
+const cors = require("cors");
 
 dotenv.config();
 
 const authRoutes = require("./routes/auth");
 
 const app = express();
+
+// CORS Middleware
+app.use(
+  cors({
+    origin: "http://localhost:5173", // Your frontend URL
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "x-auth-token"],
+    credentials: true,
+  })
+);
 
 // Middleware
 app.use(express.json());
