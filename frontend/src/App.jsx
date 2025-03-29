@@ -8,6 +8,7 @@ import Login from "./pages/auth/Login";
 import Dashboard from "./pages/admin/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Home from "./pages/Home";
+import AddUser from "./pages/admin/AddUser";
 
 function App() {
   return (
@@ -26,6 +27,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/add-user"
+          element={
+            <ProtectedRoute>
+              <AddUser />
             </ProtectedRoute>
           }
         />
