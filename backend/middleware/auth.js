@@ -18,8 +18,11 @@ const auth = (req, res, next) => {
 
 const checkRole = (roles) => {
   return (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
-      return res.status(403).json({ message: "Access denied" });
+    // Check if user exists and has role from the decoded token
+    if (!req.user || !req.user.user || !roles.includes(req.user.user.role)) {
+      return res
+        .status(403)
+        .json({ message: "Access denied. Insufficient permissions." });
     }
     next();
   };

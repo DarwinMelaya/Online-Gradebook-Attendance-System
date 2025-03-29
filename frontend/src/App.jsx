@@ -9,10 +9,12 @@ import Dashboard from "./pages/admin/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Home from "./pages/Home";
 import AddUser from "./pages/admin/AddUser";
+import { Toaster } from "react-hot-toast";
 
 function App() {
   return (
     <Router>
+      <Toaster position="top-right" />
       <Routes>
         {/* Redirect root to login */}
         <Route path="/" element={<Navigate to="/login" replace />} />
