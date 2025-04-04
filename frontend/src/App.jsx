@@ -10,6 +10,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Home from "./pages/Home";
 import AddUser from "./pages/admin/AddUser";
 import { Toaster } from "react-hot-toast";
+import TeacherDashboard from "./pages/teacher/TeacherDashboard";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
         <Route path="/" element={<Home />} />
 
         {/* Protected route */}
+        {/* FOR ADMIND */}
         <Route
           path="/admin/dashboard"
           element={
@@ -37,6 +39,16 @@ function App() {
           element={
             <ProtectedRoute>
               <AddUser />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* FOR TEACHER */}
+        <Route
+          path="/teacher/dashboard"
+          element={
+            <ProtectedRoute>
+              <TeacherDashboard />
             </ProtectedRoute>
           }
         />
