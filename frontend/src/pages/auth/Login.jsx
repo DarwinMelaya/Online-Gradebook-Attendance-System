@@ -35,11 +35,13 @@ const Login = () => {
         },
       });
 
-      // Check if user is admin and redirect accordingly
+      // Check user role and redirect accordingly
       if (userResponse.data.role === "admin") {
         navigate("/admin/dashboard");
+      } else if (userResponse.data.role === "teacher") {
+        navigate("/teacher/dashboard"); // or whatever the teacher's dashboard route is
       } else {
-        setError("Access denied. Admin privileges required.");
+        setError("Access denied. Invalid role.");
       }
     } catch (err) {
       setError(err.response?.data?.message || "An error occurred");
