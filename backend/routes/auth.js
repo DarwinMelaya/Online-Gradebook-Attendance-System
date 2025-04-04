@@ -194,4 +194,53 @@ router.get("/admin/users", [auth, checkRole(["admin"])], async (req, res) => {
   }
 });
 
+// Admin: Update user role
+router.put(
+  "/admin/users/:userId/role",
+  [auth, checkRole(["admin"])],
+  async (req, res) => {
+    try {
+      const { role } = req.body;
+      if (!["admin", "teacher", "student"].includes(role)) {
+        return res.status(400).json({ message: "Invalid role" });
+      }
+
+      const user = await User.findByIdAndUpdate(
+        req.params.userId,
+        { role },
+        { new: true }
+      ).select("-password");
+
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      res.json(user);
+    } catch (err) {
+      console.error(err.message);
+      res.status(500).send("Server error");
+    }
+  }
+);
+
+// Admin: Delete user
+router.delete(
+  "/admin/users/:userId",
+  [auth, checkRole(["admin"])],
+  async (req, res) => {
+    try {
+      const user = await User.findByIdAndDelete(req.params.userId);
+
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      res.json({ message: "User deleted successfully" });
+    } catch (err) {
+      console.error(err.message);
+      res.status(500).send("Server error");
+    }
+  }
+);
+
 module.exports = router;
