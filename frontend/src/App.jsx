@@ -1,15 +1,16 @@
+import { Toaster } from "react-hot-toast";
 import {
+  Navigate,
+  Route,
   BrowserRouter as Router,
   Routes,
-  Route,
-  Navigate,
 } from "react-router-dom";
-import Login from "./pages/auth/Login";
-import Dashboard from "./pages/admin/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Home from "./pages/Home";
 import AddUser from "./pages/admin/AddUser";
-import { Toaster } from "react-hot-toast";
+import Dashboard from "./pages/admin/Dashboard";
+import Login from "./pages/auth/Login";
+import AddStudents from "./pages/teacher/AddStudents";
 import TeacherDashboard from "./pages/teacher/TeacherDashboard";
 
 function App() {
@@ -49,6 +50,14 @@ function App() {
           element={
             <ProtectedRoute>
               <TeacherDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/teacher/add-students"
+          element={
+            <ProtectedRoute>
+              <AddStudents />
             </ProtectedRoute>
           }
         />
