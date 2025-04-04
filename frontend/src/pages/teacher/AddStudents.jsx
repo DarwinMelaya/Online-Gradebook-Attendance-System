@@ -7,6 +7,18 @@ const AddStudents = () => {
     username: "",
     email: "",
     password: "",
+    studentId: "",
+    studentName: "",
+    address: {
+      barangay: "",
+      municipality: "",
+      province: "",
+    },
+    guardian: {
+      name: "",
+      contactNumber: "",
+      relationship: "",
+    },
   });
   const [message, setMessage] = useState({ type: "", text: "" });
   const [students, setStudents] = useState([]);
@@ -39,10 +51,22 @@ const AddStudents = () => {
   }, []);
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+    if (name.includes(".")) {
+      const [parent, child] = name.split(".");
+      setFormData((prev) => ({
+        ...prev,
+        [parent]: {
+          ...prev[parent],
+          [child]: value,
+        },
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -61,7 +85,23 @@ const AddStudents = () => {
       );
 
       setMessage({ type: "success", text: "Student added successfully!" });
-      setFormData({ username: "", email: "", password: "" });
+      setFormData({
+        username: "",
+        email: "",
+        password: "",
+        studentId: "",
+        studentName: "",
+        address: {
+          barangay: "",
+          municipality: "",
+          province: "",
+        },
+        guardian: {
+          name: "",
+          contactNumber: "",
+          relationship: "",
+        },
+      });
       fetchStudents();
     } catch (error) {
       setMessage({
@@ -119,47 +159,170 @@ const AddStudents = () => {
 
             <form onSubmit={handleSubmit} className="mt-4">
               <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Username
-                  </label>
-                  <input
-                    type="text"
-                    name="username"
-                    value={formData.username}
-                    onChange={handleChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black sm:text-sm"
-                    required
-                  />
+                {/* Basic Information */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Username
+                    </label>
+                    <input
+                      type="text"
+                      name="username"
+                      value={formData.username}
+                      onChange={handleChange}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black sm:text-sm"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black sm:text-sm"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Password
+                    </label>
+                    <input
+                      type="password"
+                      name="password"
+                      value={formData.password}
+                      onChange={handleChange}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black sm:text-sm"
+                      required
+                      minLength={6}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Student ID
+                    </label>
+                    <input
+                      type="text"
+                      name="studentId"
+                      value={formData.studentId}
+                      onChange={handleChange}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black sm:text-sm"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Student Name
+                    </label>
+                    <input
+                      type="text"
+                      name="studentName"
+                      value={formData.studentName}
+                      onChange={handleChange}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black sm:text-sm"
+                      required
+                    />
+                  </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black sm:text-sm"
-                    required
-                  />
+                {/* Address Information */}
+                <div className="border-t pt-4">
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">
+                    Address
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">
+                        Barangay
+                      </label>
+                      <input
+                        type="text"
+                        name="address.barangay"
+                        value={formData.address.barangay}
+                        onChange={handleChange}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black sm:text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">
+                        Municipality
+                      </label>
+                      <input
+                        type="text"
+                        name="address.municipality"
+                        value={formData.address.municipality}
+                        onChange={handleChange}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black sm:text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">
+                        Province
+                      </label>
+                      <input
+                        type="text"
+                        name="address.province"
+                        value={formData.address.province}
+                        onChange={handleChange}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black sm:text-sm"
+                      />
+                    </div>
+                  </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Password
-                  </label>
-                  <input
-                    type="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black sm:text-sm"
-                    required
-                    minLength={6}
-                  />
+                {/* Guardian Information */}
+                <div className="border-t pt-4">
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">
+                    Guardian Information
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">
+                        Guardian Name
+                      </label>
+                      <input
+                        type="text"
+                        name="guardian.name"
+                        value={formData.guardian.name}
+                        onChange={handleChange}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black sm:text-sm"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">
+                        Contact Number
+                      </label>
+                      <input
+                        type="text"
+                        name="guardian.contactNumber"
+                        value={formData.guardian.contactNumber}
+                        onChange={handleChange}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black sm:text-sm"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">
+                        Relationship
+                      </label>
+                      <input
+                        type="text"
+                        name="guardian.relationship"
+                        value={formData.guardian.relationship}
+                        onChange={handleChange}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black sm:text-sm"
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 <div className="pt-4">
@@ -206,10 +369,19 @@ const AddStudents = () => {
                     <thead className="bg-gray-50">
                       <tr>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Student
+                          Student ID
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Student Name
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Email
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Address
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Guardian
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Created At
@@ -221,12 +393,48 @@ const AddStudents = () => {
                         <tr key={student._id} className="hover:bg-gray-50">
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="text-sm font-medium text-gray-900">
-                              {student.username}
+                              {student.studentId}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm font-medium text-gray-900">
+                              {student.studentName}
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="text-sm text-gray-500">
-                              {student.email}
+                              {student.user.email}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm text-gray-500">
+                              {student.address && student.address.barangay ? (
+                                <>
+                                  {student.address.barangay},{" "}
+                                  {student.address.municipality},{" "}
+                                  {student.address.province}
+                                </>
+                              ) : (
+                                "No address provided"
+                              )}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm text-gray-500">
+                              <div>
+                                {student.guardian?.name || "No name provided"}
+                              </div>
+                              <div className="text-xs text-gray-400">
+                                {student.guardian?.relationship ? (
+                                  <>
+                                    {student.guardian.relationship} •{" "}
+                                    {student.guardian.contactNumber}
+                                  </>
+                                ) : (
+                                  student.guardian?.contactNumber ||
+                                  "No contact provided"
+                                )}
+                              </div>
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

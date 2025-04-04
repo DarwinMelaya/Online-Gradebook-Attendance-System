@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const { check, validationResult } = require("express-validator");
 const User = require("../models/User");
 const { auth, checkRole } = require("../middleware/auth");
+const StudentInfo = require("../models/StudentInfo");
 
 // Register user
 router.post(
@@ -251,10 +252,11 @@ router.post(
     checkRole(["teacher"]),
     check("username", "Username is required").not().isEmpty(),
     check("email", "Please include a valid email").isEmail(),
-    check(
-      "password",
-      "Please enter a password with 6 or more characters"
-    ).isLength({ min: 6 }),
+    check("password", "Please enter a password with 6 or more characters").isLength({ min: 6 }),
+    check("studentId", "Student ID is required").not().isEmpty(),
+    check("studentName", "Student name is required").not().isEmpty(),
+    check("guardian.name", "Guardian name is required").not().isEmpty(),
+    check("guardian.contactNumber", "Guardian contact number is required").not().isEmpty(),
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -263,24 +265,54 @@ router.post(
     }
 
     try {
-      const { username, email, password } = req.body;
+      const {
+        username,
+        email,
+        password,
+        studentId,
+        studentName,
+        address: { barangay, municipality, province },
+        guardian,
+      } = req.body;
 
+      // Check if student ID already exists
+      let existingStudentInfo = await StudentInfo.findOne({ studentId });
+      if (existingStudentInfo) {
+        return res.status(400).json({ message: "Student ID already exists" });
+      }
+
+      // Check if email already exists
       let user = await User.findOne({ email });
       if (user) {
         return res.status(400).json({ message: "User already exists" });
       }
 
+      // Create new user
       user = new User({
         username,
         email,
         password,
-        role: "student", // Teachers can only create students
+        role: "student",
       });
 
       const salt = await bcrypt.genSalt(10);
       user.password = await bcrypt.hash(password, salt);
-
       await user.save();
+
+      // Create student info with new address structure
+      const studentInfo = new StudentInfo({
+        user: user._id,
+        studentId,
+        studentName,
+        address: {
+          barangay,
+          municipality,
+          province,
+        },
+        guardian,
+      });
+
+      await studentInfo.save();
 
       res.status(201).json({
         message: "Student created successfully",
@@ -289,6 +321,12 @@ router.post(
           username: user.username,
           email: user.email,
           role: user.role,
+        },
+        studentInfo: {
+          studentId: studentInfo.studentId,
+          studentName: studentInfo.studentName,
+          address: studentInfo.address,
+          guardian: studentInfo.guardian,
         },
       });
     } catch (err) {
@@ -304,8 +342,32 @@ router.get(
   [auth, checkRole(["teacher"])],
   async (req, res) => {
     try {
-      const students = await User.find({ role: "student" }).select("-password");
+      const students = await StudentInfo.find().populate("user", "-password");
       res.json(students);
+    } catch (err) {
+      console.error(err.message);
+      res.status(500).send("Server error");
+    }
+  }
+);
+
+// Add new route to get student info
+router.get(
+  "/teacher/students/:userId",
+  [auth, checkRole(["teacher", "admin"])],
+  async (req, res) => {
+    try {
+      const studentInfo = await StudentInfo.findOne({
+        user: req.params.userId,
+      }).populate("user", "-password");
+
+      if (!studentInfo) {
+        return res
+          .status(404)
+          .json({ message: "Student information not found" });
+      }
+
+      res.json(studentInfo);
     } catch (err) {
       console.error(err.message);
       res.status(500).send("Server error");
