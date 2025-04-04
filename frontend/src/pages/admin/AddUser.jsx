@@ -1,9 +1,56 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Layout from "../../components/layout/Layout";
 import AddUserModal from "../../components/admin/modals/AddUserModal";
+import axios from "axios";
+import { toast } from "react-hot-toast";
 
 const AddUser = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchUsers = async () => {
+    try {
+      const response = await axios.get("/api/auth/admin/users", {
+        headers: {
+          "x-auth-token": localStorage.getItem("token"),
+        },
+      });
+      setUsers(response.data);
+    } catch (error) {
+      toast.error("Failed to fetch users");
+      console.error("Error fetching users:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  // Function to format date
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
+
+  // Function to get role badge color
+  const getRoleBadgeColor = (role) => {
+    switch (role) {
+      case "admin":
+        return "bg-red-100 text-red-800";
+      case "teacher":
+        return "bg-blue-100 text-blue-800";
+      case "student":
+        return "bg-green-100 text-green-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
 
   return (
     <Layout>
@@ -50,16 +97,70 @@ const AddUser = () => {
               </h2>
             </div>
 
-            {/* Placeholder for users list */}
-            <div className="mt-4 text-gray-500 text-sm">
-              Users list will be displayed here...
-            </div>
+            {loading ? (
+              <div className="flex justify-center items-center h-48">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black"></div>
+              </div>
+            ) : (
+              <div className="mt-6">
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          User
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Role
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Created At
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {users.map((user) => (
+                        <tr key={user._id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <div>
+                                <div className="text-sm font-medium text-gray-900">
+                                  {user.username}
+                                </div>
+                                <div className="text-sm text-gray-500">
+                                  {user.email}
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span
+                              className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getRoleBadgeColor(
+                                user.role
+                              )}`}
+                            >
+                              {user.role}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {formatDate(user.createdAt)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
         <AddUserModal
           isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
+          onClose={() => {
+            setIsModalOpen(false);
+            fetchUsers(); // Refresh the users list after adding a new user
+          }}
         />
       </div>
     </Layout>
